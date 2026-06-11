@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SQL LeetCode — Placement Prep Tracker</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f4;
+    --bg3: #f0efed;
+    --text: #1a1a18;
+    --text2: #6b6b68;
+    --text3: #9b9b97;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --green: #3B6D11;
+    --green-bg: #EAF3DE;
+    --amber: #854F0B;
+    --amber-bg: #FAEEDA;
+    --red: #A32D2D;
+    --red-bg: #FCEBEB;
+    --accent: #1D9E75;
+    --accent-light: #E1F5EE;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #262624;
+      --bg3: #2e2e2b;
+      --text: #f0efed;
+      --text2: #a0a09b;
+      --text3: #6b6b68;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.18);
+      --green: #C0DD97;
+      --green-bg: #173404;
+      --amber: #FAC775;
+      --amber-bg: #412402;
+      --red: #F7C1C1;
+      --red-bg: #501313;
+      --accent: #5DCAA5;
+      --accent-light: #04342C;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px}
+  a{color:inherit;text-decoration:none}
+
+  /* Layout */
+  .container{max-width:960px;margin:0 auto;padding:2rem 1.25rem 4rem}
+
+  /* Hero */
+  .hero{padding:2.5rem 0 2rem;border-bottom:0.5px solid var(--border)}
+  .hero-eyebrow{font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:.6rem}
+  .hero h1{font-size:2rem;font-weight:600;line-height:1.2;color:var(--text)}
+  .hero p{font-size:15px;color:var(--text2);margin-top:.5rem;max-width:520px}
+
+  /* Stats */
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:1.5rem 0 0}
+  .stat-card{background:var(--bg2);border-radius:var(--radius);padding:14px 16px}
+  .stat-card .num{font-size:24px;font-weight:600;color:var(--text)}
+  .stat-card .lbl{font-size:12px;color:var(--text2);margin-top:2px}
+  .progress-wrap{padding:.75rem 0 1.5rem}
+  .progress-track{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
+  .progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s ease;width:0%}
+
+  /* Controls */
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:.75rem 0 1.25rem;border-bottom:0.5px solid var(--border)}
+  .filter-btn{background:transparent;border:0.5px solid var(--border2);border-radius:var(--radius);padding:6px 14px;font-size:13px;cursor:pointer;color:var(--text2);font-family:inherit;transition:all .15s}
+  .filter-btn:hover{background:var(--bg2);color:var(--text)}
+  .filter-btn.active{background:var(--bg2);color:var(--text);border-color:var(--border2);font-weight:500}
+  .search-wrap{flex:1;min-width:180px;position:relative}
+  .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text3);pointer-events:none}
+  .search-input{width:100%;padding:7px 12px 7px 32px;border:0.5px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--bg);color:var(--text);font-family:inherit;outline:none}
+  .search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+  .clear-btn{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:6px 14px;font-size:13px;cursor:pointer;color:var(--text2);font-family:inherit}
+  .clear-btn:hover{color:var(--red)}
+
+  /* Sections */
+  .section-header{display:flex;align-items:center;gap:10px;padding:1.5rem 0 .6rem}
+  .section-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+  .section-count{font-size:11px;color:var(--text3)}
+  .section-done{font-size:11px;color:var(--accent);font-weight:500}
+
+  /* Table */
+  .q-table{width:100%;border-collapse:collapse;table-layout:fixed}
+  .q-table colgroup col:nth-child(1){width:40px}
+  .q-table colgroup col:nth-child(2){width:56px}
+  .q-table colgroup col:nth-child(3){width:auto}
+  .q-table colgroup col:nth-child(4){width:80px}
+  .q-table colgroup col:nth-child(5){width:220px}
+  .q-table colgroup col:nth-child(6){width:90px}
+  .q-table th{font-size:11px;font-weight:500;color:var(--text3);text-align:left;padding:6px 10px;border-bottom:0.5px solid var(--border);letter-spacing:.03em}
+  .q-table td{font-size:13px;padding:9px 10px;border-bottom:0.5px solid var(--border);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .q-table tr:hover td{background:var(--bg2)}
+  .q-table tr.solved td{opacity:.45}
+
+  /* Badges */
+  .badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;white-space:nowrap}
+  .easy{background:var(--green-bg);color:var(--green)}
+  .medium{background:var(--amber-bg);color:var(--amber)}
+  .hard{background:var(--red-bg);color:var(--red)}
+
+  /* Check button */
+  .check-btn{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);cursor:pointer;background:transparent;display:inline-flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s;flex-shrink:0}
+  .check-btn:hover{border-color:var(--accent);background:var(--accent-light)}
+  .check-btn.checked{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  /* LC link */
+  .lc-link{color:var(--text2);font-size:12px;font-family:monospace}
+  .lc-link:hover{color:var(--accent)}
+  .q-title{color:var(--text);font-size:13px}
+  .q-title:hover{color:var(--accent)}
+  .concept{color:var(--text3);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* Empty */
+  .empty{text-align:center;padding:3rem;color:var(--text2);font-size:14px}
+
+  /* Roadmap section */
+  .roadmap{margin-top:3rem;padding-top:2rem;border-top:0.5px solid var(--border)}
+  .roadmap h2{font-size:16px;font-weight:500;margin-bottom:1rem;color:var(--text)}
+  .phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .phase{background:var(--bg2);border-radius:var(--radius-lg);padding:1rem 1.1rem;border:0.5px solid var(--border)}
+  .phase-tag{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:.4rem}
+  .phase h3{font-size:14px;font-weight:500;color:var(--text);margin-bottom:.3rem}
+  .phase p{font-size:12px;color:var(--text2);line-height:1.5}
+
+  /* Footer */
+  footer{margin-top:3rem;padding-top:1.5rem;border-top:0.5px solid var(--border);font-size:12px;color:var(--text3);text-align:center}
+
+  /* Responsive */
+  @media(max-width:640px){
+    .stats-grid{grid-template-columns:repeat(2,1fr)}
+    .q-table colgroup col:nth-child(5){width:0;display:none}
+    .q-table th:nth-child(5),.q-table td:nth-child(5){display:none}
+    .q-table colgroup col:nth-child(6){width:0;display:none}
+    .q-table th:nth-child(6),.q-table td:nth-child(6){display:none}
+    .hero h1{font-size:1.5rem}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">Placement Prep · DBMS</div>
+    <h1>SQL LeetCode Tracker</h1>
+    <p>75 essential questions from zero to mastery — organized by topic, tracked by you.</p>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="num" id="sDone">0</div><div class="lbl">Solved</div></div>
+      <div class="stat-card"><div class="num" id="sLeft">75</div><div class="lbl">Remaining</div></div>
+      <div class="stat-card"><div class="num" id="sPct">0%</div><div class="lbl">Progress</div></div>
+      <div class="stat-card"><div class="num" id="sEasy">0</div><div class="lbl">Easy done</div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="pFill"></div></div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="filter-btn active" data-filter="all">All (75)</button>
+    <button class="filter-btn" data-filter="easy">Easy</button>
+    <button class="filter-btn" data-filter="medium">Medium</button>
+    <button class="filter-btn" data-filter="hard">Hard</button>
+    <button class="filter-btn" data-filter="done">Solved ✓</button>
+    <button class="filter-btn" data-filter="todo">To-do</button>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" type="text" id="searchBox" placeholder="Search by title or concept…"/>
+    </div>
+    <button class="clear-btn" id="clearBtn">Clear all</button>
+  </div>
+
+  <!-- Questions -->
+  <div id="content"></div>
+
+  <!-- Roadmap -->
+  <div class="roadmap">
+    <h2>Study roadmap</h2>
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-tag">Week 1–2</div>
+        <h3>Foundations</h3>
+        <p>SELECT, WHERE, GROUP BY, HAVING, ORDER BY, basic JOINs, NULL handling. Solve all Easy questions first.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-tag">Week 3–4</div>
+        <h3>Core patterns</h3>
+        <p>Aggregation, self-joins, subqueries, CASE WHEN, string & date functions. Most interview questions live here.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-tag">Week 5</div>
+        <h3>Window functions</h3>
+        <p>RANK, DENSE_RANK, ROW_NUMBER, LAG/LEAD, running SUM OVER PARTITION. The placement differentiator.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-tag">Week 6</div>
+        <h3>Hard + CTEs</h3>
+        <p>Recursive CTEs, islands & gaps, complex subqueries. Needed for product-based companies (Amazon, Flipkart).</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>Progress is saved in your browser · Built for placement prep · <a href="https://leetcode.com/problemset/database/" target="_blank" style="color:var(--accent)">Open LeetCode DB problems ↗</a></footer>
+</div>
+
+<script>
+const DATA = [
+  {topic:"Basics & SELECT", qs:[
+    {id:1,lc:175,title:"Combine Two Tables",diff:"easy",concept:"LEFT JOIN basics"},
+    {id:2,lc:181,title:"Employees Earning More Than Their Managers",diff:"easy",concept:"Self JOIN"},
+    {id:3,lc:182,title:"Duplicate Emails",diff:"easy",concept:"GROUP BY + HAVING"},
+    {id:4,lc:183,title:"Customers Who Never Order",diff:"easy",concept:"NOT IN / LEFT JOIN NULL"},
+    {id:5,lc:196,title:"Delete Duplicate Emails",diff:"easy",concept:"DELETE with self-join"},
+    {id:6,lc:595,title:"Big Countries",diff:"easy",concept:"WHERE conditions"},
+    {id:7,lc:620,title:"Not Boring Movies",diff:"easy",concept:"MOD, WHERE, ORDER BY"},
+    {id:8,lc:1757,title:"Recyclable and Low Fat Products",diff:"easy",concept:"Multiple WHERE conditions"},
+    {id:9,lc:584,title:"Find Customer Referee",diff:"easy",concept:"NULL handling"},
+    {id:10,lc:627,title:"Swap Salary",diff:"easy",concept:"CASE WHEN / UPDATE"},
+  ]},
+  {topic:"Aggregation & GROUP BY", qs:[
+    {id:11,lc:511,title:"Game Play Analysis I",diff:"easy",concept:"MIN with GROUP BY"},
+    {id:12,lc:512,title:"Game Play Analysis II",diff:"medium",concept:"Subquery with MIN"},
+    {id:13,lc:534,title:"Game Play Analysis III",diff:"medium",concept:"Running SUM"},
+    {id:14,lc:550,title:"Game Play Analysis IV",diff:"medium",concept:"DATE arithmetic"},
+    {id:15,lc:586,title:"Customer Placing the Largest Number of Orders",diff:"easy",concept:"ORDER BY + LIMIT"},
+    {id:16,lc:607,title:"Sales Person",diff:"easy",concept:"NOT IN with subquery"},
+    {id:17,lc:619,title:"Biggest Single Number",diff:"easy",concept:"GROUP BY HAVING COUNT=1"},
+    {id:18,lc:1050,title:"Actors and Directors Who Cooperated At Least Three Times",diff:"easy",concept:"GROUP BY + HAVING"},
+    {id:19,lc:1075,title:"Project Employees I",diff:"easy",concept:"AVG + JOIN"},
+    {id:20,lc:1076,title:"Project Employees II",diff:"medium",concept:"Subquery for MAX count"},
+    {id:21,lc:1173,title:"Immediate Food Delivery I",diff:"easy",concept:"Conditional SUM / AVG"},
+    {id:22,lc:1174,title:"Immediate Food Delivery II",diff:"medium",concept:"First order per customer"},
+  ]},
+  {topic:"JOINs", qs:[
+    {id:23,lc:577,title:"Employee Bonus",diff:"easy",concept:"LEFT JOIN + NULL check"},
+    {id:24,lc:610,title:"Triangle Judgement",diff:"easy",concept:"CASE WHEN triangle rule"},
+    {id:25,lc:612,title:"Shortest Distance in a Plane",diff:"medium",concept:"SQRT + POWER self-join"},
+    {id:26,lc:613,title:"Shortest Distance in a Line",diff:"easy",concept:"Self-join MIN ABS diff"},
+    {id:27,lc:614,title:"Second Degree Follower",diff:"medium",concept:"Self-join follower count"},
+    {id:28,lc:1068,title:"Product Sales Analysis I",diff:"easy",concept:"INNER JOIN two tables"},
+    {id:29,lc:1069,title:"Product Sales Analysis II",diff:"easy",concept:"GROUP BY SUM with JOIN"},
+    {id:30,lc:1070,title:"Product Sales Analysis III",diff:"medium",concept:"Subquery first year"},
+    {id:31,lc:1148,title:"Article Views I",diff:"easy",concept:"Self-comparison in WHERE"},
+    {id:32,lc:1149,title:"Article Views II",diff:"medium",concept:"Two authors same day"},
+    {id:33,lc:1158,title:"Market Analysis I",diff:"medium",concept:"LEFT JOIN + COUNT + YEAR"},
+    {id:34,lc:1159,title:"Market Analysis II",diff:"hard",concept:"Rank + window functions"},
+  ]},
+  {topic:"String Functions", qs:[
+    {id:35,lc:1484,title:"Group Sold Products By The Date",diff:"easy",concept:"GROUP_CONCAT / STRING_AGG"},
+    {id:36,lc:1527,title:"Patients With a Condition",diff:"easy",concept:"LIKE pattern matching"},
+    {id:37,lc:1667,title:"Fix Names in a Table",diff:"easy",concept:"UPPER + LOWER + SUBSTR"},
+    {id:38,lc:1683,title:"Invalid Tweets",diff:"easy",concept:"LENGTH / CHAR_LENGTH"},
+    {id:39,lc:1517,title:"Find Users With Valid E-Mails",diff:"easy",concept:"REGEXP validation"},
+    {id:40,lc:1741,title:"Find Total Time Spent by Each Employee",diff:"easy",concept:"SUM grouped by date"},
+    {id:41,lc:1965,title:"Employees With Missing Information",diff:"easy",concept:"UNION ALL + NOT IN"},
+  ]},
+  {topic:"Date & Time Functions", qs:[
+    {id:42,lc:1141,title:"User Activity for the Past 30 Days I",diff:"easy",concept:"DATE_SUB / DATEDIFF"},
+    {id:43,lc:1142,title:"User Activity for the Past 30 Days II",diff:"easy",concept:"AVG sessions per user"},
+    {id:44,lc:1322,title:"Ads Performance",diff:"easy",concept:"CTR calculation + IFNULL"},
+    {id:45,lc:1350,title:"Students With Invalid Departments",diff:"easy",concept:"NOT IN subquery"},
+    {id:46,lc:1393,title:"Capital Gain/Loss",diff:"medium",concept:"Conditional SUM CASE WHEN"},
+    {id:47,lc:1407,title:"Top Travellers",diff:"easy",concept:"LEFT JOIN + IFNULL SUM"},
+    {id:48,lc:1412,title:"Find the Quiet Students in All Exams",diff:"hard",concept:"HAVING with MAX/MIN"},
+  ]},
+  {topic:"Window Functions", qs:[
+    {id:49,lc:185,title:"Department Top Three Salaries",diff:"hard",concept:"DENSE_RANK() OVER PARTITION"},
+    {id:50,lc:178,title:"Rank Scores",diff:"medium",concept:"DENSE_RANK() no gap"},
+    {id:51,lc:177,title:"Nth Highest Salary",diff:"medium",concept:"LIMIT OFFSET / DENSE_RANK"},
+    {id:52,lc:176,title:"Second Highest Salary",diff:"medium",concept:"IFNULL + LIMIT OFFSET"},
+    {id:53,lc:180,title:"Consecutive Numbers",diff:"medium",concept:"LAG/LEAD or self-join"},
+    {id:54,lc:1097,title:"Game Play Analysis V",diff:"hard",concept:"Window fraction calculation"},
+    {id:55,lc:1204,title:"Last Person to Fit in the Bus",diff:"medium",concept:"Cumulative SUM + LIMIT"},
+    {id:56,lc:1321,title:"Restaurant Growth",diff:"medium",concept:"SUM sliding 7-day window"},
+    {id:57,lc:1341,title:"Movie Rating",diff:"medium",concept:"UNION + window rank"},
+    {id:58,lc:1369,title:"Get the Second Most Recent Activity",diff:"hard",concept:"ROW_NUMBER partition"},
+    {id:59,lc:1454,title:"Active Users",diff:"medium",concept:"Consecutive days with LAG"},
+    {id:60,lc:1532,title:"The Most Recent Three Orders",diff:"medium",concept:"ROW_NUMBER OVER PARTITION"},
+    {id:61,lc:1549,title:"The Most Recent Orders for Each Product",diff:"medium",concept:"RANK window per product"},
+    {id:62,lc:1596,title:"The Most Frequently Ordered Products for Each Customer",diff:"medium",concept:"RANK by count partition"},
+    {id:63,lc:1613,title:"Find the Missing IDs",diff:"medium",concept:"Recursive CTE sequence"},
+  ]},
+  {topic:"Subqueries & CTEs", qs:[
+    {id:64,lc:1164,title:"Product Price at a Given Date",diff:"medium",concept:"Subquery latest price before date"},
+    {id:65,lc:1193,title:"Monthly Transactions I",diff:"medium",concept:"CASE SUM by month/country"},
+    {id:66,lc:1194,title:"Tournament Winners",diff:"hard",concept:"UNION + GROUP BY + MAX"},
+    {id:67,lc:1211,title:"Queries Quality and Percentage",diff:"easy",concept:"AVG rating + poor ratio"},
+    {id:68,lc:1241,title:"Number of Comments per Post",diff:"easy",concept:"LEFT JOIN subquery"},
+    {id:69,lc:1264,title:"Page Recommendations",diff:"medium",concept:"Friends graph traversal"},
+    {id:70,lc:1270,title:"All People Report to the Given Manager",diff:"medium",concept:"Recursive CTE / multi-join"},
+    {id:71,lc:1285,title:"Find the Start and End Number of Continuous Ranges",diff:"medium",concept:"Islands & gaps pattern"},
+    {id:72,lc:1303,title:"Find the Team Size",diff:"easy",concept:"COUNT JOIN self"},
+    {id:73,lc:1308,title:"Running Total for Different Genders",diff:"medium",concept:"Partition running SUM"},
+    {id:74,lc:1336,title:"Number of Transactions per Visit",diff:"hard",concept:"Recursive CTE + LEFT JOIN"},
+    {id:75,lc:1355,title:"Activity Participants",diff:"medium",concept:"NOT MAX NOT MIN count"},
+  ]},
+];
+
+const TOTAL = 75;
+let done = {};
+let filter = 'all';
+let search = '';
+
+// Load from localStorage
+try {
+  const saved = JSON.parse(localStorage.getItem('sql_lc_done') || '[]');
+  saved.forEach(id => done[id] = true);
+} catch(e) {}
+
+function save() {
+  try { localStorage.setItem('sql_lc_done', JSON.stringify(Object.keys(done).map(Number))); } catch(e) {}
+}
+
+function updateStats() {
+  const n = Object.keys(done).length;
+  let easyDone = 0;
+  DATA.forEach(s => s.qs.forEach(q => { if (done[q.id] && q.diff === 'easy') easyDone++; }));
+  document.getElementById('sDone').textContent = n;
+  document.getElementById('sLeft').textContent = TOTAL - n;
+  document.getElementById('sPct').textContent = Math.round(n / TOTAL * 100) + '%';
+  document.getElementById('sEasy').textContent = easyDone;
+  document.getElementById('pFill').style.width = (n / TOTAL * 100) + '%';
+}
+
+function lcUrl(lc, title) {
+  return 'https://leetcode.com/problems/' + title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + '/';
+}
+
+function render() {
+  updateStats();
+  let html = '';
+  DATA.forEach(section => {
+    const qs = section.qs.filter(q => {
+      if (filter === 'easy' && q.diff !== 'easy') return false;
+      if (filter === 'medium' && q.diff !== 'medium') return false;
+      if (filter === 'hard' && q.diff !== 'hard') return false;
+      if (filter === 'done' && !done[q.id]) return false;
+      if (filter === 'todo' && done[q.id]) return false;
+      const s = search.toLowerCase();
+      if (s && !q.title.toLowerCase().includes(s) && !q.concept.toLowerCase().includes(s)) return false;
+      return true;
+    });
+    if (!qs.length) return;
+    const sectionDone = qs.filter(q => done[q.id]).length;
+    html += `<div class="section-header">
+      <span class="section-title">${section.topic}</span>
+      <span class="section-count">${qs.length} questions</span>
+      ${sectionDone > 0 ? `<span class="section-done">${sectionDone} solved</span>` : ''}
+    </div>
+    <table class="q-table">
+      <colgroup><col/><col/><col/><col/><col/><col/></colgroup>
+      <thead><tr>
+        <th></th>
+        <th>LC #</th>
+        <th>Title</th>
+        <th>Difficulty</th>
+        <th>Key concept</th>
+        <th>Link</th>
+      </tr></thead>
+      <tbody>`;
+    qs.forEach(q => {
+      const isDone = !!done[q.id];
+      const url = lcUrl(q.lc, q.title);
+      html += `<tr class="${isDone ? 'solved' : ''}" id="row-${q.id}">
+        <td><button class="check-btn ${isDone ? 'checked' : ''}" onclick="toggle(${q.id})" aria-label="${isDone ? 'Mark unsolved' : 'Mark solved'}">${isDone ? '✓' : ''}</button></td>
+        <td class="lc-link">${q.lc}</td>
+        <td><a class="q-title" href="${url}" target="_blank">${q.title}</a></td>
+        <td><span class="badge ${q.diff}">${q.diff}</span></td>
+        <td class="concept">${q.concept}</td>
+        <td><a href="${url}" target="_blank" style="font-size:12px;color:var(--accent)">Solve ↗</a></td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+  });
+  if (!html) html = `<div class="empty">No questions match this filter.</div>`;
+  document.getElementById('content').innerHTML = html;
+}
+
+function toggle(id) {
+  done[id] = !done[id];
+  if (!done[id]) delete done[id];
+  save();
+  render();
+}
+
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    filter = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+
+// Search
+document.getElementById('searchBox').addEventListener('input', e => {
+  search = e.target.value;
+  render();
+});
+
+// Clear all
+document.getElementById('clearBtn').addEventListener('click', () => {
+  if (confirm('Clear all solved progress?')) {
+    done = {};
+    save();
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
